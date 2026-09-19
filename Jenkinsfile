@@ -13,9 +13,16 @@ pipeline{
 					}
 				}
 				
-			stage('Check Docker'){
+			stage('Docker Build'){
 				steps{
-					bat 'docker version'
+					bat 'docker build -t employee-api:%BUILD_NUMBER% .'
+				}
+			}
+			
+			stage('Docker Image check'){
+				steps{
+					bat 'docker images employee-api'
+					}
 				}
 			}
 				
