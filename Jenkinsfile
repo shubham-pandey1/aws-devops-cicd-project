@@ -24,7 +24,7 @@ pipeline{
 					bat 'docker images employee-api'
 					}
 				}
-			}
+			
 				
 				stage('Verify JAR'){
 					steps {
