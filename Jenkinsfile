@@ -13,6 +13,12 @@ pipeline{
 					}
 				}
 				
+			stage('Check Docker'){
+				steps{
+					bat 'docker version'
+				}
+			}
+				
 				stage('Verify JAR'){
 					steps {
 						bat 'dir target'
