@@ -13,6 +13,14 @@ pipeline{
 					}
 				}
 				
+			stage('SonarQube Analysis'){
+				steps{
+					withSonarQubeEnv('sonarqube'){
+						bat 'mvnw.cmd verify sonar:sonar -Dsonar.projectKey=employee-api'
+						}
+					}
+				}
+				
 			stage('Docker Build'){
 				steps{
 					bat 'docker build -t employee-api:%BUILD_NUMBER% .'
