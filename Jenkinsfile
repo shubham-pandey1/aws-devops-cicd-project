@@ -16,7 +16,7 @@ pipeline{
 			stage('SonarQube Analysis'){
 				steps{
 					withSonarQubeEnv('sonarqube'){
-						bat 'mvnw.cmd verify sonar:sonar -Dsonar.projectKey=employee-api'
+						bat 'mvnw.cmd verify org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar -Dsonar.projectKey=employee-api'
 						}
 					}
 				}
