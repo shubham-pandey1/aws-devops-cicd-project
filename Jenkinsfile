@@ -41,6 +41,12 @@ pipeline{
 					}
 			}
 			
+			stage('Trivy check'){
+				steps{
+					bat 'trivy --version'
+					}
+				}
+			
 			stage('Trivy Scan'){
 				steps{
 					bat 'trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed employee-api:%BUILD_NUMBER%'
