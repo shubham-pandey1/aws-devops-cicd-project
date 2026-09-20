@@ -39,7 +39,13 @@ pipeline{
 				steps{
 					bat 'docker images employee-api'
 					}
-				}
+			}
+			
+			stage('Trivy Scan'){
+				steps{
+					bat 'trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed employee-api:%BUILD_NUMBER%'
+					}
+			}
 			
 				
 				stage('Verify JAR'){
