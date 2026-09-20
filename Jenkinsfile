@@ -43,13 +43,13 @@ pipeline{
 			
 			stage('Trivy check'){
 				steps{
-					bat 'trivy --version'
+					bat '"C:\\trivy_0.74.0_windows-64bit\\trivy.exe" --version'
 					}
 				}
 			
 			stage('Trivy Scan'){
 				steps{
-					bat 'trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed employee-api:%BUILD_NUMBER%'
+					bat '"C:\\trivy_0.74.0_windows-64bit\\trivy.exe" image --timeout 15m --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed employee-api:%BUILD_NUMBER%'
 					}
 			}
 			
