@@ -80,10 +80,11 @@ pipeline{
 					steps{
 						bat '''
 							docker tag employee-api:%BUILD_NUMBER% 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
-							docker push 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_BUMBER%
+							docker push 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
 						'''
 						}
 					}
+					
 			stage('Verify JAR'){
 					steps {
 						bat 'dir target'
