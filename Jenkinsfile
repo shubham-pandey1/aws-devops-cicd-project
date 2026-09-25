@@ -53,8 +53,38 @@ pipeline{
 					}
 			}
 			
+			stage('Verify AWS CLI'){
+				steps {
+					bat 'where aws'
+					bat 'aws --version'
+					}
+				}
+			
+			stage('ECR Login') {
+				steps {
+					bat '''
+						set AWS_ACCESS_KEY_ID=test
+						set AWS_SECRET_ACCESS_KEY=test
+						set AWS_DEFAULT_REGION=us-east-1
+						
+						aws ecr get-login-password ^
+						--endpoint-url http://localhost:4566 ^
+						--region us-east-1 ^
+						| docker login --username AWS ^
+						--password-stdin 000000000000.dkr.ecr.us-east-1.localhost:4566
+					'''
+					}
+				}
 				
-				stage('Verify JAR'){
+				stage('Push Image to ECR'){
+					steps{
+						bat '''
+							docker tag employee-api:%BUILD_NUMBER% 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
+							docker push 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_BUMBER%
+						'''
+						}
+					}
+			stage('Verify JAR'){
 					steps {
 						bat 'dir target'
 						}
