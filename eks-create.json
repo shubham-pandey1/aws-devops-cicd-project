@@ -1,0 +1,9 @@
+{
+	"name": "employee-api-cluster",
+	"roleArn": "arn:aws:iam::000000000000:role/eks-role",
+	"version": "1.35",
+	"resourcesVpcConfig": {
+		"subnetIds": [],
+		"securityGroupIds": []
+	}
+   }

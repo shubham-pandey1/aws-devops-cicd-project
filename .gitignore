@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+floci-kubeconfig.yaml
+jenkins-kubeconfig.yaml
+k3s-local.yaml

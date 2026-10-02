@@ -83,7 +83,42 @@ pipeline{
 							docker push 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
 						'''
 						}
+				}
+				
+				stage('Test Kubernetes Access'){
+					steps{
+						withCredentials([file(credentialsId: 'kubeconfig-k3s', variable: 'KUBECONFIG')]){
+							bat '''
+								echo Kubernetes configuration:
+								kubectl config current-context
+								
+								echo Kubernetes nodes:
+								kubectl get nodes
+								kubectl get deployment employee-api
+								kubectl get pods
+								'''
+								}
+							}
+						}
+				
+				stage('Deploye to Kubernetes'){
+					steps {
+						withCredentials([file(credentialsId: 'kubeconfig-k3s', variable: 'KUBECONFIG')]) {
+						bat '''
+							echo Deploying employee-api image %BUILD_NUMBER%
+							kubectl get nodes
+							
+							kubectl set image deployement/employee-api ^
+								employee-api=000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
+							
+							kubectl rollout status deployment/employee-api --timeout=5m
+							kubectl get pods
+						'''
+						}
+					  }
 					}
+					
+				
 					
 			stage('Verify JAR'){
 					steps {
