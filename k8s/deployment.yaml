@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_URL
-              value: jdbc:mysql://mysql:3306/employee_db
+              value: jdbc:mysql://mysql:3306/employee_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
             - name: DB_USERNAME
               value: root
             - name: DB_PASSWORD
@@ -28,14 +28,17 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 40
+            periodSeconds: 15
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
             
 ---
 apiVersion: v1
