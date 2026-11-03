@@ -1,0 +1,9 @@
+{
+	"subnetIds": [
+		"subnet-default-us-east-1-a",
+		"subnet-default-us-east-1-b",
+		"subnet-default-us-east-1-c"
+		],
+		"endpointPublicAccess": true,
+		"endpointPrivateAccess": false
+	}

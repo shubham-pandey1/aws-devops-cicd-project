@@ -1,5 +1,10 @@
 pipeline{
 	agent any 
+	
+	environment{
+		ECR_REPOSITORY = 'localhost:4566/000000000000/us-east-1/employee-api'
+		}
+		
 	stages {
 		stage('Checkout') {
 			steps {
@@ -71,7 +76,7 @@ pipeline{
 						--endpoint-url http://localhost:4566 ^
 						--region us-east-1 ^
 						| docker login --username AWS ^
-						--password-stdin 000000000000.dkr.ecr.us-east-1.localhost:4566
+						--password-stdin localhost:4566
 					'''
 					}
 				}
@@ -79,8 +84,8 @@ pipeline{
 				stage('Push Image to ECR'){
 					steps{
 						bat '''
-							docker tag employee-api:%BUILD_NUMBER% 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
-							docker push 000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
+							docker tag employee-api:%BUILD_NUMBER% %ECR_REPOSITORY%:%BUILD_NUMBER%
+							docker push %ECR_REPOSITORY%:%BUILD_NUMBER%
 						'''
 						}
 				}
@@ -103,16 +108,50 @@ pipeline{
 				
 				stage('Deploye to Kubernetes'){
 					steps {
-						withCredentials([file(credentialsId: 'kubeconfig-k3s', variable: 'KUBECONFIG')]) {
+						withCredentials([file(credentialsId: 'kubeconfig-k3s', variable: 'KUBECONFIG'),
+						string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')
+						]) {
 						bat '''
-							echo Deploying employee-api image %BUILD_NUMBER%
-							kubectl get nodes
+							echo Updating MySQL Kubernetes Secret...
 							
-							kubectl set image deployement/employee-api ^
-								employee-api=000000000000.dkr.ecr.us-east-1.localhost:4566/employee-api:%BUILD_NUMBER%
+							kubectl create secret generic mysql-secret ^
+							--from-literal=MYSQL_ROOT_PASSWORD="%MYSQL_ROOT_PASSWORD" ^
+							--dry-run=client -o yaml | kubectl apply -f -
 							
+							if errorlevel 1 exit /b 1
+							
+							echo Applying MySQL manifests...
+							kubectl apply -f k8s/mysql.yaml
+							
+							if errorlevel 1 exit /b 1
+							
+							kubectl rollout status deployment/mysql --timeout=5m
+							
+							if errorlevel 1 exit /b 1
+							
+							echo Applying Employee API manifests...
+							
+							kubectl apply -f k8s/deployment.yaml
+							
+							if errorlevel 1 exit /b 1
+							
+							echo Updating Employee API image...
+							
+							kubectl set image deployment/employee-api ^
+							employee-api=%ECR_REPOSITORY%:%BUILD_NUMBER%
+							
+							if errorlevel 1 exit /b 1
+							
+							echo Waiting for Employee API rollout...
 							kubectl rollout status deployment/employee-api --timeout=5m
-							kubectl get pods
+							
+							if errorlevel 1 exit /b 1
+							
+							echo Final Kubernetes status...
+							
+							kubectl get pods -o wide
+							kubectl get services
+							kubectl get deployments
 						'''
 						}
 					  }
@@ -129,7 +168,7 @@ pipeline{
 				
 				post {
 					success {
-					echo 'CI pipeline completed successfully.'
+					echo 'CI pipeline completed successfully. Employee API deployed to Floci Kubernetes.'
 					}
 					
 					failure {
