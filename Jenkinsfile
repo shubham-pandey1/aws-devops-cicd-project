@@ -106,7 +106,7 @@ pipeline{
 							}
 						}
 				
-				stage('Deploye to Kubernetes'){
+				stage('Deploy to Kubernetes'){
 					steps {
 						withCredentials([file(credentialsId: 'kubeconfig-k3s', variable: 'KUBECONFIG'),
 						string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD')
@@ -115,7 +115,7 @@ pipeline{
 							echo Updating MySQL Kubernetes Secret...
 							
 							kubectl create secret generic mysql-secret ^
-							--from-literal=MYSQL_ROOT_PASSWORD="%MYSQL_ROOT_PASSWORD" ^
+							--from-literal=MYSQL_ROOT_PASSWORD="%MYSQL_ROOT_PASSWORD%" ^
 							--dry-run=client -o yaml | kubectl apply -f -
 							
 							if errorlevel 1 exit /b 1
